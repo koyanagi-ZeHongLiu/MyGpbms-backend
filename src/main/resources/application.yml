@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mygpbms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+    username: root
+    password: lzh124578963
+    hikari:
+      connection-timeout: 500
+      minimum-idle: 0
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      dialect: MySQLDialect
+    properties:
+      hibernate:
+          format_sql: true
+          use_sql_comments: true
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+
+server:
+  port: 8008
+  servlet:
+    context-path: /
+
+logging:
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  path: "./logs/"
+  file: "./logs/gpbms.log"
+  file.max-size: 10MB
+  level:
+    root: INFO
+
+
