@@ -40,17 +40,21 @@ public class UserController {
 
     @Transactional
     @PostMapping(value = "editUser")
-    public void editUser(@RequestBody User user){
-        User u = userRepository.findById(user.getId()).get();
+    public void editUser(@RequestBody User user) {
+        // 从数据库取出要修改的user
+        User pesistUser = userRepository.findById(user.getId()).orElse(null);
+        //如果前台传回的密码为空，则密码保持不变,反之，重置密码
+        if (user.getPassword() == null) {
+            user.setPassword(pesistUser.getPassword());
+        }
         //如果该用户在数据库里本来就有角色，先移除，再重新添加
-        if(u.getRoles() != null){
-            List<Role> roles = u.getRoles();
+        if(pesistUser.getRoles() != null){
+            List<Role> roles = pesistUser.getRoles();
             //解除关系，只删除中间表记录。
-            roles.forEach(role -> role.getUsers().remove(u));
+            roles.forEach(role -> role.getUsers().remove(pesistUser));
         }
         userRepository.save(user);
     }
-
     @Transactional
     @PostMapping(value = "deleteUser")
     public void deleteUser(@RequestBody User user) {
