@@ -1,7 +1,11 @@
 package com.example.gpbms.user.controller;
 
 import com.example.gpbms.user.entity.Org;
+import com.example.gpbms.user.entity.Role;
+import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.OrgRepository;
+import com.example.gpbms.user.repository.RoleRepository;
+import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api")
@@ -22,9 +27,56 @@ public class OrgController {
     @Autowired
     private OrgRepository orgRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Transactional
     @PostMapping(value = "saveOrg")
     public void saveOrg(@RequestBody Org org){
+        orgRepository.save(org);
+    }
+
+    @Transactional
+    @PostMapping(value = "editOrg")
+    public void editOrg(@RequestBody Org org){
+        //经办人
+        Role role1 = roleRepository.findById("1").get();
+        //采购管理员
+        Role role2 = roleRepository.findById("2").get();
+        //单位负责人
+        Role role3 = roleRepository.findById("3").get();
+        //先找到原来的采购管理员和单位负责人，重置他们的权限为经办人
+        Org oldOrg = orgRepository.findById(org.getId()).get();
+        if(oldOrg.getPurchaseAdmin() != null){
+            User oldPurchaseAdmin = userRepository.findByRealName(oldOrg.getPurchaseAdmin()).get();
+            if(oldPurchaseAdmin.getRoles() != null){
+                List<Role> roles = oldPurchaseAdmin.getRoles();
+                roles.forEach(role -> role.getUsers().remove(oldPurchaseAdmin));
+                oldPurchaseAdmin.getRoles().clear();
+                oldPurchaseAdmin.getRoles().add(role1);
+                userRepository.save(oldPurchaseAdmin);
+            }
+        }
+        if(oldOrg.getOrgAdmin() != null){
+            User oldOrgAdmin = userRepository.findByRealName(oldOrg.getOrgAdmin()).get();
+            if(oldOrgAdmin.getRoles() != null){
+                List<Role> roles = oldOrgAdmin.getRoles();
+                roles.forEach(role -> role.getUsers().remove(oldOrgAdmin));
+                oldOrgAdmin.getRoles().clear();
+                oldOrgAdmin.getRoles().add(role1);
+                userRepository.save(oldOrgAdmin);
+            }
+        }
+
+        User purchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).get();
+        purchaseAdmin.getRoles().add(role2);
+        userRepository.save(purchaseAdmin);
+        User orgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
+        orgAdmin.getRoles().add(role3);
+        userRepository.save(orgAdmin);
         orgRepository.save(org);
     }
 

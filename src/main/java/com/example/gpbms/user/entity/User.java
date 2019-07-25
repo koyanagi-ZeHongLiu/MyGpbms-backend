@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -43,10 +44,11 @@ public class User {
     @Column(name = "description")
     private String description;
 
-    @ManyToMany
+    //关闭懒加载
+    @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(
             name = "user_role",
-            joinColumns = {@JoinColumn(name = "user_id",referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id",referencedColumnName = "id")})
-    private List<Role> roles;
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private List<Role> roles = new ArrayList<Role>();
 }

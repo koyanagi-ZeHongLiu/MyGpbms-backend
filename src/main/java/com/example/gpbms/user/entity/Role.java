@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -28,7 +29,7 @@ public class Role {
     private String description;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
+    @ManyToMany(fetch=FetchType.EAGER)
+    private List<User> users = new ArrayList<User>();
 
 }

@@ -1,6 +1,9 @@
 package com.example.gpbms.user.controller;
 
+import com.example.gpbms.user.entity.Org;
+import com.example.gpbms.user.entity.Role;
 import com.example.gpbms.user.entity.User;
+import com.example.gpbms.user.repository.RoleRepository;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +25,41 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Transactional
     @PostMapping(value = "saveUser")
     public void saveUser(@RequestBody User user) {
+        //默认角色为经办人
+        if(user.getRoles().isEmpty()){
+            user.getRoles().add(roleRepository.findById("1").get());
+        }
+        userRepository.save(user);
+    }
+
+    @Transactional
+    @PostMapping(value = "editUser")
+    public void editUser(@RequestBody User user){
+        User u = userRepository.findById(user.getId()).get();
+        //如果该用户在数据库里本来就有角色，先移除，再重新添加
+        if(u.getRoles() != null){
+            List<Role> roles = u.getRoles();
+            //解除关系，只删除中间表记录。
+            roles.forEach(role -> role.getUsers().remove(u));
+        }
         userRepository.save(user);
     }
 
     @Transactional
     @PostMapping(value = "deleteUser")
     public void deleteUser(@RequestBody User user) {
+        User u = userRepository.findById(user.getId()).get();
+        //删除用户前先删除角色
+        if(u.getRoles() != null){
+            List<Role> roles = u.getRoles();
+            roles.forEach(role -> role.getUsers().remove(u));
+        }
         userRepository.delete(user);
     }
 
@@ -46,4 +75,8 @@ public class UserController {
         return userList;
     }
 
+    @PostMapping(value = "getUsersByOrg")
+    public List<User> getUsersByOrg(@RequestBody Org org){
+        return userRepository.findByOrgId(org.getId());
+    }
 }
