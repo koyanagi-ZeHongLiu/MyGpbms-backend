@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import javax.transaction.Transactional;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api")
@@ -55,6 +56,31 @@ public class UserController {
         }
         userRepository.save(user);
     }
+
+    @Transactional
+    @PostMapping(value = "updateUserRoles")
+    public void updateUserRoles(@RequestBody Map<String ,Object> map) {
+        String userId = (String) map.get("userId");
+        User user = userRepository.findById(userId).get();
+        //如果该用户在数据库里本来就有角色，先移除，再重新添加
+        if(user.getRoles() != null){
+            List<Role> roles = user.getRoles();
+            //解除关系，只删除中间表记录。
+            roles.forEach(role -> role.getUsers().remove(user));
+        }
+        //新的角色集
+        ArrayList<Role> roles = new ArrayList<>();
+        // 拿到该用户新的角色集的id数组
+        ArrayList rids = (ArrayList) map.get("rids");
+        for (int i = 0; i < rids.size(); i++) {
+            roles.add(roleRepository.findById((String) rids.get(i)).get());
+        }
+        //重新设置该用户的角色集
+        user.setRoles(roles);
+        userRepository.save(user);
+        System.out.println("修改成功");
+    }
+
     @Transactional
     @PostMapping(value = "deleteUser")
     public void deleteUser(@RequestBody User user) {

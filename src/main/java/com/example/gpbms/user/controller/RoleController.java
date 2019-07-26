@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RestController
 @RequestMapping("api")
@@ -38,9 +39,8 @@ public class RoleController {
     }
 
     @PostMapping(value = "getRoles")
-    public Page<Role> getRoles(@RequestBody PageUtils pageUtils){
-        Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
-        Page<Role> roleList = roleRepository.findAll(pageable);
-        return roleList;
+    public List<Role> getRoles(){
+        List<Role> roles = roleRepository.findAll();
+        return roles;
     }
 }
