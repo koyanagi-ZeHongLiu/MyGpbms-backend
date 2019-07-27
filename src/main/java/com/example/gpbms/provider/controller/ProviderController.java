@@ -3,6 +3,7 @@ package com.example.gpbms.provider.controller;
 import com.example.gpbms.provider.entity.Provider;
 import com.example.gpbms.provider.repository.ProviderRepository;
 import com.example.gpbms.util.PageUtils;
+import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,25 +24,26 @@ public class ProviderController {
 
     @Transactional
     @PostMapping(value = "saveProvider")
-    public void saveProvider(@RequestBody Provider provider){
-        providerRepository.save(provider);
+    public RespBean saveProvider(@RequestBody Provider provider){
+        return RespBean.success("代理机构添加成功",providerRepository.save(provider));
     }
 
     @Transactional
     @PostMapping(value = "deleteProvider")
-    public void deleteProvider(@RequestBody Provider provider){
+    public RespBean deleteProvider(@RequestBody Provider provider){
         providerRepository.delete(provider);
+        return RespBean.success("删除代理机构成功");
     }
 
     @PostMapping(value = "getProvider")
-    public Provider getProvider(@RequestBody Provider provider){
-        return providerRepository.findById(provider.getId()).orElse(null);
+    public RespBean getProvider(@RequestBody Provider provider){
+        return RespBean.success("加载代理机构成功",providerRepository.findById(provider.getId()).orElse(null));
     }
 
     @PostMapping(value = "getProviders")
-    public Page<Provider> getProviders(@RequestBody PageUtils pageUtils){
+    public RespBean getProviders(@RequestBody PageUtils pageUtils){
         Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
         Page<Provider> providerList = providerRepository.findAll(pageable);
-        return providerList;
+        return RespBean.success("加载代理机构成功",providerList);
     }
 }

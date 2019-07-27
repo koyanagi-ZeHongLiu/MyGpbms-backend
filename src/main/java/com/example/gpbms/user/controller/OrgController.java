@@ -7,6 +7,7 @@ import com.example.gpbms.user.repository.OrgRepository;
 import com.example.gpbms.user.repository.RoleRepository;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
+import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,13 +36,13 @@ public class OrgController {
 
     @Transactional
     @PostMapping(value = "saveOrg")
-    public void saveOrg(@RequestBody Org org){
-        orgRepository.save(org);
+    public RespBean saveOrg(@RequestBody Org org){
+        return RespBean.success("添加单位成功",orgRepository.save(org));
     }
 
     @Transactional
     @PostMapping(value = "editOrg")
-    public void editOrg(@RequestBody Org org){
+    public RespBean editOrg(@RequestBody Org org){
         //经办人
         Role role1 = roleRepository.findById("1").get();
         //采购管理员
@@ -50,9 +51,9 @@ public class OrgController {
         Role role3 = roleRepository.findById("3").get();
         //先找到原来的采购管理员和单位负责人，重置他们的权限为经办人
         Org oldOrg = orgRepository.findById(org.getId()).get();
-        if(oldOrg.getPurchaseAdmin() != null){
+        if(!oldOrg.getPurchaseAdmin().isEmpty()){
             User oldPurchaseAdmin = userRepository.findByRealName(oldOrg.getPurchaseAdmin()).get();
-            if(oldPurchaseAdmin.getRoles() != null){
+            if(!oldPurchaseAdmin.getRoles().isEmpty()){
                 List<Role> roles = oldPurchaseAdmin.getRoles();
                 roles.forEach(role -> role.getUsers().remove(oldPurchaseAdmin));
                 oldPurchaseAdmin.getRoles().clear();
@@ -60,9 +61,9 @@ public class OrgController {
                 userRepository.save(oldPurchaseAdmin);
             }
         }
-        if(oldOrg.getOrgAdmin() != null){
+        if(!oldOrg.getOrgAdmin().isEmpty()){
             User oldOrgAdmin = userRepository.findByRealName(oldOrg.getOrgAdmin()).get();
-            if(oldOrgAdmin.getRoles() != null){
+            if(!oldOrgAdmin.getRoles().isEmpty()){
                 List<Role> roles = oldOrgAdmin.getRoles();
                 roles.forEach(role -> role.getUsers().remove(oldOrgAdmin));
                 oldOrgAdmin.getRoles().clear();
@@ -77,25 +78,26 @@ public class OrgController {
         User orgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
         orgAdmin.getRoles().add(role3);
         userRepository.save(orgAdmin);
-        orgRepository.save(org);
+        return RespBean.success("修改单位成功",orgRepository.save(org));
     }
 
     @Transactional
     @PostMapping(value = "deleteOrg")
-    public void deleteOrg(@RequestBody Org org){
+    public RespBean deleteOrg(@RequestBody Org org){
         orgRepository.delete(org);
+        return RespBean.success("删除单位成功");
     }
 
     @PostMapping(value = "getOrg")
-    public Org getOrg(@RequestBody Org org){
-        return orgRepository.findById(org.getId()).orElse(null);
+    public RespBean getOrg(@RequestBody Org org){
+        return RespBean.success("加载单位成功",orgRepository.findById(org.getId()).orElse(null));
     }
 
     @PostMapping(value = "getOrgs")
-    public Page<Org> getOrgs(@RequestBody PageUtils pageUtils){
+    public RespBean getOrgs(@RequestBody PageUtils pageUtils){
         Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
         Page<Org> orgList = orgRepository.findAll(pageable);
-        return orgList;
+        return RespBean.success("加载单位成功",orgList);
     }
 
 }

@@ -3,6 +3,7 @@ package com.example.gpbms.user.controller;
 import com.example.gpbms.user.entity.Role;
 import com.example.gpbms.user.repository.RoleRepository;
 import com.example.gpbms.util.PageUtils;
+import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,24 +24,25 @@ public class RoleController {
 
     @Transactional
     @PostMapping(value = "saveRole")
-    public void saveRole(@RequestBody Role role){
-        roleRepository.save(role);
+    public RespBean saveRole(@RequestBody Role role){
+        return RespBean.success("添加角色成功",roleRepository.save(role));
     }
 
     @Transactional
     @PostMapping(value = "deleteRole")
-    public void deleteRole(@RequestBody Role role){
+    public RespBean deleteRole(@RequestBody Role role){
         roleRepository.delete(role);
+        return RespBean.success("删除角色成功");
     }
 
     @PostMapping(value = "getRole")
-    public Role getRole(@RequestBody Role role){
-        return roleRepository.findById(role.getId()).orElse(null);
+    public RespBean getRole(@RequestBody Role role){
+        return RespBean.success("加载角色成功",roleRepository.findById(role.getId()).orElse(null));
     }
 
     @PostMapping(value = "getRoles")
-    public List<Role> getRoles(){
+    public RespBean getRoles(){
         List<Role> roles = roleRepository.findAll();
-        return roles;
+        return RespBean.success("加载角色成功",roles);
     }
 }
