@@ -51,7 +51,7 @@ public class OrgController {
         Role role3 = roleRepository.findById("3").get();
         //先找到原来的采购管理员和单位负责人，重置他们的权限为经办人
         Org oldOrg = orgRepository.findById(org.getId()).get();
-        if(!oldOrg.getPurchaseAdmin().isEmpty()){
+        if(oldOrg.getPurchaseAdmin() != null){
             User oldPurchaseAdmin = userRepository.findByRealName(oldOrg.getPurchaseAdmin()).get();
             if(!oldPurchaseAdmin.getRoles().isEmpty()){
                 List<Role> roles = oldPurchaseAdmin.getRoles();
@@ -61,7 +61,7 @@ public class OrgController {
                 userRepository.save(oldPurchaseAdmin);
             }
         }
-        if(!oldOrg.getOrgAdmin().isEmpty()){
+        if(oldOrg.getOrgAdmin()!= null){
             User oldOrgAdmin = userRepository.findByRealName(oldOrg.getOrgAdmin()).get();
             if(!oldOrgAdmin.getRoles().isEmpty()){
                 List<Role> roles = oldOrgAdmin.getRoles();

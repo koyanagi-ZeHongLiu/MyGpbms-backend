@@ -3,6 +3,7 @@ package com.example.gpbms.user.controller;
 import com.example.gpbms.user.entity.Org;
 import com.example.gpbms.user.entity.Role;
 import com.example.gpbms.user.entity.User;
+import com.example.gpbms.user.repository.OrgRepository;
 import com.example.gpbms.user.repository.RoleRepository;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
@@ -30,6 +31,9 @@ public class UserController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private OrgRepository orgRepository;
+
     @Transactional
     @PostMapping(value = "saveUser")
     public RespBean saveUser(@RequestBody User user) {
@@ -44,6 +48,7 @@ public class UserController {
     @Transactional
     @PostMapping(value = "editUser")
     public RespBean editUser(@RequestBody User user) {
+        Org org = orgRepository.findById(user.getOrg().getId()).get();
         // 从数据库取出要修改的user
         User pesistUser = userRepository.findById(user.getId()).orElse(null);
         //如果前台传回的密码为空，则密码保持不变,反之，重置密码
@@ -64,11 +69,21 @@ public class UserController {
     public RespBean updateUserRoles(@RequestBody Map<String ,Object> map) {
         String userId = (String) map.get("userId");
         User user = userRepository.findById(userId).get();
+        Org org = orgRepository.findById(user.getOrg().getId()).get();
         //如果该用户在数据库里本来就有角色，先移除，再重新添加
         if(!user.getRoles().isEmpty()){
             List<Role> roles = user.getRoles();
             //解除关系，只删除中间表记录。
             roles.forEach(role -> role.getUsers().remove(user));
+            //删完中间表后删除单位里的信息
+            for(Role role : roles){
+                if(role.getId().equals("2")){
+                    org.setPurchaseAdmin(null);
+                }else if(role.getId().equals("3")){
+                    org.setOrgAdmin(null);
+                }
+            }
+            orgRepository.save(org);
         }
         //新的角色集
         ArrayList<Role> roles = new ArrayList<>();
@@ -79,6 +94,29 @@ public class UserController {
         }
         //重新设置该用户的角色集
         user.setRoles(roles);
+        //若有管理员将管理员姓名加入对应的单位，如果该单位已存在管理员，先移除
+        for(Role role : roles){
+            if(role.getId().equals("2")){
+                if(org.getPurchaseAdmin() != null){
+                    User oldPurchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).get();
+                    List<Role> PurchaseAdminRoles = oldPurchaseAdmin.getRoles();
+                    PurchaseAdminRoles.remove(roleRepository.findById("2").get());
+                    oldPurchaseAdmin.setRoles(PurchaseAdminRoles);
+                    userRepository.save(oldPurchaseAdmin);
+                }
+                org.setPurchaseAdmin(user.getRealName());
+            }else if(role.getId().equals("3")){
+                if(org.getOrgAdmin() != null){
+                    User oldOrgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
+                    List<Role> OrgAdminRoles = oldOrgAdmin.getRoles();
+                    OrgAdminRoles.remove(roleRepository.findById("3").get());
+                    oldOrgAdmin.setRoles(OrgAdminRoles);
+                    userRepository.save(oldOrgAdmin);
+                }
+                org.setOrgAdmin(user.getRealName());
+            }
+        }
+        orgRepository.save(org);
         return RespBean.success("修改用户信息成功",userRepository.save(user));
     }
 
