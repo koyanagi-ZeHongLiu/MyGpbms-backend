@@ -7,7 +7,7 @@ public class RespBean {
 
     private String code; //200代表操作成功，失败默认为500，还可定义其他的
     private String msg;  //错误信息，成功的话不管
-    private Object data;
+    private Object ResData;
 
     public static RespBean success(){
         RespBean respBean = new RespBean();
@@ -27,7 +27,7 @@ public class RespBean {
         RespBean respBean = new RespBean();
         respBean.setCode("200");
         respBean.setMsg("操作成功");
-        respBean.setData(data);
+        respBean.setResData(data);
         return respBean;
     }
 
@@ -35,7 +35,7 @@ public class RespBean {
         RespBean respBean = new RespBean();
         respBean.setCode("200");
         respBean.setMsg(successMsg);
-        respBean.setData(data);
+        respBean.setResData(data);
         return respBean;
     }
 
