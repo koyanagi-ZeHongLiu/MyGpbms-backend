@@ -50,38 +50,33 @@ public class OrgController {
         //单位负责人
         Role role3 = roleRepository.findById("3").get();
         //先找到原来的采购管理员和单位负责人，重置他们的权限为经办人
-        Org oldOrg = orgRepository.findById(org.getId()).get();
-        if(oldOrg.getPurchaseAdmin() != null){
-            User oldPurchaseAdmin = userRepository.findByRealName(oldOrg.getPurchaseAdmin()).get();
-            if(!oldPurchaseAdmin.getRoles().isEmpty()){
-                List<Role> roles = oldPurchaseAdmin.getRoles();
-                roles.forEach(role -> role.getUsers().remove(oldPurchaseAdmin));
-                oldPurchaseAdmin.getRoles().clear();
-                oldPurchaseAdmin.getRoles().add(role1);
-                userRepository.save(oldPurchaseAdmin);
+        Org oldOrg = orgRepository.findById(org.getId()).orElse(null);
+        if (oldOrg != null) {
+            if(!oldOrg.getPurchaseAdmin().isEmpty()){
+                User oldPurchaseAdmin = userRepository.findByRealName(oldOrg.getPurchaseAdmin()).get();
+                if(!oldPurchaseAdmin.getRoles().isEmpty()){
+                    List<Role> roles = oldPurchaseAdmin.getRoles();
+                    roles.forEach(role -> role.getUsers().remove(oldPurchaseAdmin));
+                    oldPurchaseAdmin.getRoles().clear();
+                    oldPurchaseAdmin.getRoles().add(role1);
+                    userRepository.save(oldPurchaseAdmin);
+                }
+            }
+            if(!oldOrg.getOrgAdmin().isEmpty()){
+                User oldOrgAdmin = userRepository.findByRealName(oldOrg.getOrgAdmin()).get();
+                if(!oldOrgAdmin.getRoles().isEmpty()){
+                    List<Role> roles = oldOrgAdmin.getRoles();
+                    roles.forEach(role -> role.getUsers().remove(oldOrgAdmin));
+                    oldOrgAdmin.getRoles().clear();
+                    oldOrgAdmin.getRoles().add(role1);
+                    userRepository.save(oldOrgAdmin);
+                }
             }
         }
-        if(oldOrg.getOrgAdmin()!= null){
-            User oldOrgAdmin = userRepository.findByRealName(oldOrg.getOrgAdmin()).get();
-            if(!oldOrgAdmin.getRoles().isEmpty()){
-                List<Role> roles = oldOrgAdmin.getRoles();
-                roles.forEach(role -> role.getUsers().remove(oldOrgAdmin));
-                oldOrgAdmin.getRoles().clear();
-                oldOrgAdmin.getRoles().add(role1);
-                userRepository.save(oldOrgAdmin);
-            }
-        }
-
-        User purchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).get();
+        User purchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).orElse(null);
         purchaseAdmin.getRoles().add(role2);
-        // 同时要设置该采购管理员的单位为当前修改单位
-        purchaseAdmin.setOrg(org);
-        userRepository.save(purchaseAdmin);
-        User orgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
+        User orgAdmin = userRepository.findByRealName(org.getOrgAdmin()).orElse(null);
         orgAdmin.getRoles().add(role3);
-        // 同时要设置该单位负责人的单位为当前修改单位
-        orgAdmin.setOrg(org);
-        userRepository.save(orgAdmin);
         return RespBean.success("修改单位成功",orgRepository.save(org));
     }
 

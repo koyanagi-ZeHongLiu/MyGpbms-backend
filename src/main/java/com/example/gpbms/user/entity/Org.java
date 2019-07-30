@@ -33,18 +33,11 @@ public class Org {
     @Column(name = "org_code", unique = true)
     private String orgCode;
 
-    /*@JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    private User purchaseAdmin;*/
     @Column(name = "purchase_admin",columnDefinition = "varchar(32) default null")
     private String purchaseAdmin;
 
-    /*@JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    private User orgAdmin;*/
     @Column(name = "org_admin",columnDefinition = "varchar(32) default null")
     private String orgAdmin;
-
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "org")

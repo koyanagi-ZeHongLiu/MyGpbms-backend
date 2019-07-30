@@ -29,7 +29,7 @@ public class Role {
     private String description;
 
     @JsonIgnore
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER,mappedBy = "roles")
     private List<User> users = new ArrayList<User>();
 
 }
