@@ -127,10 +127,10 @@ public class UserController {
         Org org = orgRepository.findById(dbUser.getOrg().getId()).get();
         // 删除用户时，同时检查该用户是否是该单位的采购管理员或单位负责人
         if (org.getOrgAdmin().equals(dbUser.getRealName())) {
-            org.setOrgAdmin(null);
+            org.setOrgAdmin("");
         }
         if (org.getPurchaseAdmin().equals(dbUser.getRealName())) {
-            org.setPurchaseAdmin(null);
+            org.setPurchaseAdmin("");
         }
         //删除用户前先删除角色
         if (!dbUser.getRoles().isEmpty()) {
