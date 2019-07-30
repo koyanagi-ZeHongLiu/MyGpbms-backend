@@ -74,9 +74,13 @@ public class OrgController {
 
         User purchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).get();
         purchaseAdmin.getRoles().add(role2);
+        // 同时要设置该采购管理员的单位为当前修改单位
+        purchaseAdmin.setOrg(org);
         userRepository.save(purchaseAdmin);
         User orgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
         orgAdmin.getRoles().add(role3);
+        // 同时要设置该单位负责人的单位为当前修改单位
+        orgAdmin.setOrg(org);
         userRepository.save(orgAdmin);
         return RespBean.success("修改单位成功",orgRepository.save(org));
     }
