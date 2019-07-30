@@ -70,7 +70,8 @@ public class UserController {
         String userId = (String) map.get("userId");
         User user = userRepository.findById(userId).get();
         Org org = orgRepository.findById(user.getOrg().getId()).get();
-        //如果该用户在数据库里本来就有角色，先移除，再重新添加
+        // 如果该用户在数据库里本来就有角色，先移除，再重新添加
+        // 此处默认一个单位只能有一个采购管理员和单位负责人
         if(!user.getRoles().isEmpty()){
             List<Role> roles = user.getRoles();
             //解除关系，只删除中间表记录。
