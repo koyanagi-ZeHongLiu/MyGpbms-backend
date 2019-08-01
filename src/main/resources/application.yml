@@ -44,6 +44,13 @@ spring:
         url-pattern: /*
         # 忽略过滤格式
         exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      filter:
+        slf4j:
+          enabled: true
+          statement-create-after-log-enabled: false
+          statement-close-after-log-enabled: false
+          result-set-open-after-log-enabled: false
+          result-set-close-after-log-enabled: false
 
 
 
@@ -67,13 +74,6 @@ server:
     context-path: /
 
 logging:
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
-  path: "./logs/"
-  file: "./logs/gpbms.log"
-  file.max-size: 10MB
-  level:
-    root: INFO
+  config: classpath:log4j2.xml
 
 
