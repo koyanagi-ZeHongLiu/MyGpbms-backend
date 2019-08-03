@@ -1,0 +1,55 @@
+package com.example.gpbms.budget.controller;
+
+import com.example.gpbms.budget.entity.Fund;
+import com.example.gpbms.budget.repository.FundRepository;
+import com.example.gpbms.util.PageUtils;
+import com.example.gpbms.util.RespBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.transaction.Transactional;
+
+@RestController
+@RequestMapping("api")
+public class FundController {
+
+    @Autowired
+    private FundRepository fundRepository;
+
+    @Transactional
+    @PostMapping(value = "saveFund")
+    public RespBean saveFund(@RequestBody Fund fund){
+        return RespBean.success("保存经费单成功",fundRepository.save(fund));
+    }
+
+    @Transactional
+    @PostMapping(value = "editFund")
+    public RespBean editFund(@RequestBody Fund fund){
+        return RespBean.success("修改经费单成功",fundRepository.save(fund));
+    }
+
+    @Transactional
+    @PostMapping(value = "deleteFund")
+    public RespBean deleteFund(@RequestBody Fund fund){
+        fundRepository.delete(fund);
+        return RespBean.success("删除经费单成功");
+    }
+
+    @PostMapping(value = "getFund")
+    public RespBean getFund(@RequestBody Fund fund){
+        return RespBean.success("加载经费单成功",fundRepository.findById(fund.getId()).orElse(null));
+    }
+
+    @PostMapping(value = "getFunds")
+    public RespBean getFunds(@RequestBody PageUtils pageUtils){
+        Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
+        Page<Fund> fundList = fundRepository.findAll(pageable);
+        return RespBean.success("加载经费单成功",fundList);
+    }
+}
