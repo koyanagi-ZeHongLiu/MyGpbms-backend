@@ -28,11 +28,11 @@ public class Fund {
     @Column(name = "fund_name")
     private String fundName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
 
-    @Column(name = "type")
-    private String type;
+    @Column(name = "fund_type")
+    private String fundType;
 
     @Column(name = "total_amount")
     private Double totalAmount;   //总额度

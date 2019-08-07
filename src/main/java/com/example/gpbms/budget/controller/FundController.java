@@ -2,6 +2,7 @@ package com.example.gpbms.budget.controller;
 
 import com.example.gpbms.budget.entity.Fund;
 import com.example.gpbms.budget.repository.FundRepository;
+import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,22 @@ public class FundController {
     @Autowired
     private FundRepository fundRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Transactional
     @PostMapping(value = "saveFund")
     public RespBean saveFund(@RequestBody Fund fund){
+        fund.setOwner(userRepository.findByRealName(fund.getOwner().getRealName()).get());
+        fund.setBudgetAmount(0.0);
+        fund.setPurchaseAmount(0.0);
         return RespBean.success("保存经费单成功",fundRepository.save(fund));
     }
 
     @Transactional
     @PostMapping(value = "editFund")
     public RespBean editFund(@RequestBody Fund fund){
+        fund.setOwner(userRepository.findByRealName(fund.getOwner().getRealName()).get());
         return RespBean.success("修改经费单成功",fundRepository.save(fund));
     }
 
