@@ -2,6 +2,7 @@ package com.example.gpbms.budget.entity;
 
 
 import com.example.gpbms.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,11 +47,13 @@ public class Budget {
     private String budgetYear;   //所属年份
 
     @Column(name = "budget_status")
-    private String budgetStatus; //运算单审核进度
+    private Integer budgetStatus; //运算单审核进度
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetAuditLog> budgetAuditLogs;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetItems> budgetItems;
 
