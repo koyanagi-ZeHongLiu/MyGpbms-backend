@@ -3,6 +3,7 @@ package com.example.gpbms.user.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -28,6 +29,7 @@ public class Role {
     @Column(name = "description")
     private String description;
 
+    @ToString.Exclude
     @JsonIgnore
     @ManyToMany(fetch=FetchType.EAGER,mappedBy = "roles")
     private List<User> users = new ArrayList<User>();

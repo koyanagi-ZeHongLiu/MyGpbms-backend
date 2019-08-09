@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -49,10 +50,12 @@ public class Budget {
     @Column(name = "budget_status")
     private Integer budgetStatus; //运算单审核进度
 
+    @ToString.Exclude
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetAuditLog> budgetAuditLogs;
 
+    @ToString.Exclude
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetItems> budgetItems;

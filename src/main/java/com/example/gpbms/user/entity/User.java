@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -38,14 +39,15 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Org org;
 
     @Column(name = "description")
     private String description;
 
-    //关闭懒加载
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ToString.Exclude
+    @ManyToMany(fetch=FetchType.EAGER)//关闭懒加载
     @JoinTable(
             name = "user_role",
             joinColumns = {@JoinColumn(name = "user_id")},
