@@ -1,6 +1,7 @@
 package com.example.gpbms.shiro;
 
 import com.example.gpbms.user.entity.User;
+import com.example.gpbms.util.Md5Utils;
 import com.example.gpbms.util.RespBean;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -21,6 +22,10 @@ public class LoginController {
         //1.获取Subject
         Subject subject = SecurityUtils.getSubject();
         //2.封装用户数据
+        // MD5加密密码
+        String secret = Md5Utils.md5(user.getPassword());
+        System.out.println(secret);
+//        user.setPassword(secret);
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassword());
         //3.执行登录
         try {

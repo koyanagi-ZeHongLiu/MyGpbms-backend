@@ -38,6 +38,8 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         // 1.判断账号名是否正确
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        //通过username从数据库中查找 User对象
+        //这里可以根据实际情况做缓存，如果不做，Shiro自己也是有时间间隔机制，2分钟内不会重复执行该方法
         User user = userRepository.findByUsername(token.getUsername()).orElse(null);
         if (user == null) {
             //账号错误，Shiro底层会抛出UnknownAccountException异常

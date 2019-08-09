@@ -1,5 +1,7 @@
 package com.example.gpbms.shiro;
 
+import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +13,14 @@ import java.util.LinkedHashMap;
 @Configuration
 public class ShiroConfiguration {
 
+    @Bean(name = "sessionManager")
+    public SessionManager sessionManager() {
+        ShiroSessionManager shiroSessionManager = new ShiroSessionManager();
+        //这里可以不设置。Shiro有默认的session管理。如果缓存为Redis则需改用Redis的管理
+//        shiroSessionManager.setSessionDAO(new EnterpriseCacheSessionDAO());
+        return shiroSessionManager;
+
+    }
     @Bean(name = "shiroFilter")
     public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
         ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
@@ -22,7 +32,7 @@ public class ShiroConfiguration {
         // 设置过滤器
         LinkedHashMap<String, String> filterMap = new LinkedHashMap<>();
         /*
-        *Shiro内置过滤器：实现权限相关的拦截
+        * Shiro内置过滤器：实现权限相关的拦截
         *      常用过滤器：
         *          anon（认证用）：无需认证（登录）即可访问
         *          authc（认证用）：必须认证才可访问
@@ -48,9 +58,15 @@ public class ShiroConfiguration {
     @Bean(name = "securityManager")
     public DefaultWebSecurityManager getWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm) {
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
+        //自定义session管理
+        defaultWebSecurityManager.setSessionManager(sessionManager());
+        //自定义缓存实现
+//        defaultWebSecurityManager.setCacheManager(ehCacheManager());
+
         defaultWebSecurityManager.setRealm(userRealm);
         return defaultWebSecurityManager;
     }
+
     @Bean(name = "userRealm")
     public UserRealm getUserRealm() {
         UserRealm userRealm = new UserRealm();
