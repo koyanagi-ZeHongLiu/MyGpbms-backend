@@ -3,10 +3,7 @@ package com.example.gpbms.budget.controller;
 import com.example.gpbms.budget.entity.Budget;
 import com.example.gpbms.budget.entity.BudgetAuditLog;
 import com.example.gpbms.budget.entity.BudgetItems;
-import com.example.gpbms.budget.repository.BudgetAuditLogRepository;
-import com.example.gpbms.budget.repository.BudgetItemsRepository;
-import com.example.gpbms.budget.repository.BudgetRepository;
-import com.example.gpbms.budget.repository.FundRepository;
+import com.example.gpbms.budget.repository.*;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
@@ -31,6 +28,7 @@ public class BudgetController {
     @Autowired
     private FundRepository fundRepository;
 
+
     @Autowired
     private BudgetRepository budgetRepository;
 
@@ -40,14 +38,19 @@ public class BudgetController {
     @Autowired
     private BudgetAuditLogRepository budgetAuditLogRepository;
 
+    @Autowired
+    private BudgetAuditStatusRepository budgetAuditStatusRepository;
+
     @Transactional
     @PostMapping(value = "saveBudget")
     public RespBean saveBudget(@RequestBody Budget budget){
-        //在前端设置好budgetStatus，是保存还是提交
+        //在前端设置好budgetStatusId，是保存还是提交
         //0:保存1:提交2:采购管理员审核通过3:单位负责人审核通过4:资产处审核通过5:财务处审核通过（即完成）
-        //在前端通过BudgetStatus显示对应审核进度信息
-        if(budget.getBudgetStatus() == null){
-            budget.setBudgetStatus(0);
+        //状态信息保存在数据库
+        if(budget.getBudgetAuditStatus() == null || budget.getBudgetAuditStatus().getId() == 0){
+            budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(0).get());
+        }else{
+            budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(1).get());
         }
         //通过前端传过来的owner.realName设置owner
         budget.setOwner(userRepository.findByRealName(budget.getOwner().getRealName()).orElse(null));
