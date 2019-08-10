@@ -47,8 +47,8 @@ public class Budget {
     @Column(name = "budget_year")
     private String budgetYear;   //所属年份
 
-    @Column(name = "budget_status")
-    private Integer budgetStatus; //运算单审核进度
+    @OneToOne(fetch = FetchType.EAGER)
+    private BudgetAuditStatus budgetAuditStatus; //运算单审核进度
 
     @ToString.Exclude
     @JsonIgnore
