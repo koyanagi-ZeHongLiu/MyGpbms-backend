@@ -1,7 +1,10 @@
 package com.example.gpbms.budget.controller;
 
+import com.example.gpbms.budget.entity.Budget;
 import com.example.gpbms.budget.entity.BudgetAuditLog;
 import com.example.gpbms.budget.repository.BudgetAuditLogRepository;
+import com.example.gpbms.budget.repository.BudgetRepository;
+import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,30 +23,35 @@ import javax.transaction.Transactional;
 public class BudgetAuditLogController {
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BudgetRepository budgetRepository;
+
+    @Autowired
     private BudgetAuditLogRepository budgetAuditLogRepository;
 
     @Transactional
-    @PostMapping(value = "saveBudgetAuditLog")
-    public RespBean saveBudgetAuditLog(@RequestBody BudgetAuditLog budgetAuditLog){
-        return RespBean.success("信息保存成功", budgetAuditLogRepository.save(budgetAuditLog));
+    @PostMapping(value = "approveBudget")
+    public RespBean approveBudget(@RequestBody BudgetAuditLog budgetAuditLog){
+        //审核通过
+        Budget budget = budgetRepository.findById(budgetAuditLog.getBudget().getId()).orElse(null);
+        budget.setBudgetStatus(budget.getBudgetStatus()+1);
+        budgetAuditLog.setBudget(budget);
+        //前端传过来当前用户id(审核人)
+        budgetAuditLog.setAuditor(userRepository.findById(budgetAuditLog.getAuditor().getId()).orElse(null));
+        return RespBean.success("审核成功", budgetAuditLogRepository.save(budgetAuditLog));
     }
 
     @Transactional
-    @PostMapping(value = "deleteBudgetAuditLog")
-    public RespBean deleteBudgetAuditLog(@RequestBody BudgetAuditLog budgetAuditLog){
-        budgetAuditLogRepository.delete(budgetAuditLog);
-        return RespBean.success("信息删除成功");
-    }
-
-    @PostMapping(value = "getBudgetAuditLog")
-    public RespBean getBudgetAuditLog(@RequestBody BudgetAuditLog budgetAuditLog){
-        return RespBean.success("加载审核成功", budgetAuditLogRepository.findById(budgetAuditLog.getId()).orElse(null));
-    }
-
-    @PostMapping(value = "getBudgetAuditLogs")
-    public RespBean getBudgetAuditLogs(@RequestBody PageUtils pageUtils){
-        Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
-        Page<BudgetAuditLog> budgetAuditLogList = budgetAuditLogRepository.findAll(pageable);
-        return RespBean.success("加载经费单成功",budgetAuditLogList);
+    @PostMapping(value = "rejectBudget")
+    public RespBean rejectBudget(@RequestBody BudgetAuditLog budgetAuditLog){
+        //驳回
+        Budget budget = budgetRepository.findById(budgetAuditLog.getBudget().getId()).orElse(null);
+        budget.setBudgetStatus(budget.getBudgetStatus()-1);
+        budgetAuditLog.setBudget(budget);
+        //前端传过来当前用户id(审核人)
+        budgetAuditLog.setAuditor(userRepository.findById(budgetAuditLog.getAuditor().getId()).orElse(null));
+        return RespBean.success("审核成功", budgetAuditLogRepository.save(budgetAuditLog));
     }
 }
