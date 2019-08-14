@@ -2,6 +2,7 @@ package com.example.gpbms.budget.controller;
 
 import com.example.gpbms.budget.entity.Fund;
 import com.example.gpbms.budget.repository.FundRepository;
+import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
@@ -59,5 +60,12 @@ public class FundController {
         Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
         Page<Fund> fundList = fundRepository.findAll(pageable);
         return RespBean.success("加载经费单成功",fundList);
+    }
+    // TODO 用包装类接收前端传来的分页信息和用户RealName
+    @PostMapping(value = "getFundsByRealName")
+    public RespBean getFundsByRealname(@RequestBody PageUtils pageUtils, User user) {
+        System.out.println(pageUtils.getCurrentPage());
+        System.out.println(user.getRealName());
+        return RespBean.success("加载成功");
     }
 }
