@@ -53,8 +53,7 @@ public class LoginController {
             subject.logout();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            return RespBean.success("注销成功");
         }
+        return RespBean.success("注销成功");
     }
 }

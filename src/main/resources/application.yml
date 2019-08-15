@@ -3,7 +3,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/mygpbms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
     username: root
-    password: lzh124578963
+    password: 495
     hikari:
       connection-timeout: 500
       minimum-idle: 0
