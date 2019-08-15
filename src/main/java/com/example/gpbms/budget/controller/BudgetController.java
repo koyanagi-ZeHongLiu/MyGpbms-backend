@@ -4,6 +4,7 @@ import com.example.gpbms.budget.entity.Budget;
 import com.example.gpbms.budget.entity.BudgetAuditLog;
 import com.example.gpbms.budget.entity.BudgetItems;
 import com.example.gpbms.budget.repository.*;
+import com.example.gpbms.budget.request.GetBudgetsReq;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
@@ -123,8 +124,8 @@ public class BudgetController {
     }
 
     @PostMapping(value = "getBudgets")
-    public RespBean getBudgets(@RequestBody PageUtils pageUtils){
-        Pageable pageable = PageRequest.of(pageUtils.getCurrentPage(), pageUtils.getPageSize());
+    public RespBean getBudgets(@RequestBody GetBudgetsReq budgetsReq){
+        Pageable pageable = PageRequest.of(budgetsReq.getPageUtils().getCurrentPage(), budgetsReq.getPageUtils().getPageSize());
         Page<Budget> budgetList = budgetRepository.findAll(pageable);
         return RespBean.success("加载经费单成功",budgetList);
     }
