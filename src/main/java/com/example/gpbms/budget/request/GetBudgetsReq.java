@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 public class GetBudgetsReq {
     private Budget budget;
-    private User owner;
+    private User user;
     private PageUtils pageUtils;
 }
