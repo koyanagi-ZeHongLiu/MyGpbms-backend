@@ -56,9 +56,9 @@ public class BudgetController {
         //通过前端传过来的owner.realName设置owner
         budget.setOwner(userRepository.findByRealName(budget.getOwner().getRealName()).orElse(null));
         //通过前端传过来的fund.fundName设置fund
-        budget.setFund(fundRepository.findByFundName(budget.getFund().getFundName()).orElse(null));
+        budget.setFund(fundRepository.findById(budget.getFund().getId()).orElse(null));
         //将前端传过来的List<BudgetItems>按个存入BudgetItems表
-        if(!budget.getBudgetItems().isEmpty() && budget.getBudgetItems() != null){
+        if(!budget.getBudgetItems().isEmpty()){
             for(BudgetItems item : budget.getBudgetItems()){
                 item.setBudget(budget);
                 budgetItemsRepository.save(item);
@@ -75,7 +75,7 @@ public class BudgetController {
         if(!budget.getBudgetItems().isEmpty() && budget.getBudgetItems() != null){
             //先删掉原来的item，再重新添加
             Budget oldBudget = budgetRepository.findById(budget.getId()).orElse(null);
-            if(!oldBudget.getBudgetItems().isEmpty() && oldBudget.getBudgetItems() != null){
+            if(!oldBudget.getBudgetItems().isEmpty()){
                 for(BudgetItems item : oldBudget.getBudgetItems()){
                     budgetItemsRepository.delete(item);
                 }
@@ -92,13 +92,13 @@ public class BudgetController {
     @PostMapping(value = "deleteBudget")
     public RespBean deleteBudget(@RequestBody Budget budget){
         //删除前删除审核日志和品目
-        if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty() && budgetItemsRepository.findByBudgetId(budget.getId())!=null ){
+        if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty() ){
             List<BudgetItems> budgetItemList = budgetItemsRepository.findByBudgetId(budget.getId());
             for(BudgetItems items : budgetItemList){
                 budgetItemsRepository.delete(items);
             }
         }
-        if(!budgetAuditLogRepository.findByBudgetId(budget.getId()).isEmpty() && budgetAuditLogRepository.findByBudgetId(budget.getId())!=null){
+        if(!budgetAuditLogRepository.findByBudgetId(budget.getId()).isEmpty()){
             List<BudgetAuditLog> budgetAuditLogList = budgetAuditLogRepository.findByBudgetId(budget.getId());
             for(BudgetAuditLog auditLog : budgetAuditLogList){
                 budgetAuditLogRepository.delete(auditLog);
@@ -112,11 +112,11 @@ public class BudgetController {
     public RespBean getBudget(@RequestBody Budget budget){
         Budget resBudget = budgetRepository.findById(budget.getId()).orElse(null);
         //让resBudget忽略掉items和log以免堆栈溢出，通过下面方法加载items和log
-        if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty() && budgetItemsRepository.findByBudgetId(budget.getId())!=null){
+        if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty()){
             List<BudgetItems> budgetItemList = budgetItemsRepository.findByBudgetId(budget.getId());
             resBudget.setBudgetItems(budgetItemList);
         }
-        if(!budgetAuditLogRepository.findByBudgetId(budget.getId()).isEmpty() && budgetAuditLogRepository.findByBudgetId(budget.getId())!=null){
+        if(!budgetAuditLogRepository.findByBudgetId(budget.getId()).isEmpty()){
             List<BudgetAuditLog> budgetAuditLogList = budgetAuditLogRepository.findByBudgetId(budget.getId());
             resBudget.setBudgetAuditLogs(budgetAuditLogList);
         }

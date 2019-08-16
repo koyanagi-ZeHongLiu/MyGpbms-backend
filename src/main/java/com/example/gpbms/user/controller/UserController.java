@@ -141,6 +141,14 @@ public class UserController {
         return RespBean.success("删除用户成功");
     }
 
+    @PostMapping(value = "getUserByUsername")
+    public RespBean getUserByUsername(@RequestBody User user) {
+        //msg显不显示前端可控
+        User resUser = userRepository.findByUsername(user.getUsername()).get();
+        System.out.println(resUser.toString());
+        return RespBean.success("加载用户信息成功", resUser);
+    }
+
     @PostMapping(value = "getUser")
     public RespBean getUser(@RequestBody User user) {
         //msg显不显示前端可控

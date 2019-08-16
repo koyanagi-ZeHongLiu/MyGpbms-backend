@@ -51,12 +51,10 @@ public class Budget {
     private BudgetAuditStatus budgetAuditStatus; //运算单审核进度
 
     @ToString.Exclude
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetAuditLog> budgetAuditLogs;
 
     @ToString.Exclude
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "budget")
     private List<BudgetItems> budgetItems;
 
