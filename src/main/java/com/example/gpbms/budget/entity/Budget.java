@@ -1,6 +1,7 @@
 package com.example.gpbms.budget.entity;
 
 
+import com.example.gpbms.user.entity.Org;
 import com.example.gpbms.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -32,10 +33,13 @@ public class Budget {
     @Column(name = "budget_name")
     private String budgetName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Org org;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private Fund fund;
 
     @Column(name = "budget_type")

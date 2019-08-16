@@ -5,6 +5,8 @@ import com.example.gpbms.budget.entity.BudgetAuditLog;
 import com.example.gpbms.budget.entity.BudgetItems;
 import com.example.gpbms.budget.repository.*;
 import com.example.gpbms.budget.request.GetBudgetsReq;
+import com.example.gpbms.user.entity.Role;
+import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.UserRepository;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
@@ -123,11 +125,37 @@ public class BudgetController {
         return RespBean.success("加载预算单成功", resBudget);
     }
 
+    //按角色权限显示对应的预算单
     @PostMapping(value = "getBudgets")
     public RespBean getBudgets(@RequestBody GetBudgetsReq budgetsReq){
         Pageable pageable = PageRequest.of(budgetsReq.getPageUtils().getCurrentPage(), budgetsReq.getPageUtils().getPageSize());
-        Page<Budget> budgetList = budgetRepository.findAll(pageable);
-        return RespBean.success("加载经费单成功",budgetList);
+        User operator = userRepository.findByUsername(budgetsReq.getUser().getUsername()).orElse(null);
+        if(!operator.getRoles().isEmpty()){
+            int permission = 0; //标记当前用户权限
+            List<Role> roles = operator.getRoles();
+            for(Role role : roles){
+                if(role.getId().equals("1")){
+                    permission = 1;
+                }else if(role.getId().equals("2") || role.getId().equals("3")){
+                    permission = 2;
+                }else if(role.getId().equals("4") || role.getId().equals("5")){
+                    permission = 3;
+                }
+            }
+            if(permission == 1){
+                //普通用户显示自己的预算单
+                Page<Budget> budgetList = budgetRepository.findByOwner(pageable,operator);
+                return RespBean.success("加载经费单成功",budgetList);
+            }else if(permission == 2){
+                //采购管理员和单位分管负责人显示本单位的预算单
+                Page<Budget> budgetList = budgetRepository.findByOrg(pageable,operator.getOrg());
+                return RespBean.success("加载经费单成功",budgetList);
+            }else if(permission == 3){
+                //资产处和财务处显示所有的预算单
+                Page<Budget> budgetList = budgetRepository.findAll(pageable);
+                return RespBean.success("加载经费单成功",budgetList);
+            }
+        }
+        return RespBean.failure("当前用户没有权限查看");
     }
-
 }
