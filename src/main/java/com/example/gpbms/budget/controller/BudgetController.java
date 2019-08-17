@@ -57,8 +57,12 @@ public class BudgetController {
         }
         //通过前端传过来的owner.realName设置owner
         budget.setOwner(userRepository.findByRealName(budget.getOwner().getRealName()).orElse(null));
-        //通过前端传过来的fund.fundName设置fund
-        budget.setFund(fundRepository.findById(budget.getFund().getId()).orElse(null));
+        //通过前端传过来的fund.id设置fund,无经费的话默认设置为0，经费单0标记为无经费
+        if(budget.getFund().getId().isEmpty() || budget.getFund().getId() == null){
+            budget.setFund(fundRepository.findById("0").orElse(null));
+        }else {
+            budget.setFund(fundRepository.findById(budget.getFund().getId()).orElse(null));
+        }
         //将前端传过来的List<BudgetItems>按个存入BudgetItems表
         if(!budget.getBudgetItems().isEmpty()){
             for(BudgetItems item : budget.getBudgetItems()){
@@ -131,28 +135,28 @@ public class BudgetController {
         Pageable pageable = PageRequest.of(budgetsReq.getPageUtils().getCurrentPage(), budgetsReq.getPageUtils().getPageSize());
         User operator = userRepository.findByUsername(budgetsReq.getUser().getUsername()).orElse(null);
         if(!operator.getRoles().isEmpty()){
-            int permission = 0; //标记当前用户权限
+            int[] permission = {0,0,0}; //标记当前用户权限
             List<Role> roles = operator.getRoles();
             for(Role role : roles){
                 if(role.getId().equals("1")){
-                    permission = 1;
+                    permission[0] = 1;
                 }else if(role.getId().equals("2") || role.getId().equals("3")){
-                    permission = 2;
+                    permission[1] = 1;
                 }else if(role.getId().equals("4") || role.getId().equals("5")){
-                    permission = 3;
+                    permission[2] = 1;
                 }
             }
-            if(permission == 1){
-                //普通用户显示自己的预算单
-                Page<Budget> budgetList = budgetRepository.findByOwner(pageable,operator);
+            if(permission[2] == 1){
+                //资产处和财务处显示所有的预算单
+                Page<Budget> budgetList = budgetRepository.findAll(pageable);
                 return RespBean.success("加载经费单成功",budgetList);
-            }else if(permission == 2){
+            }else if(permission[1] == 1){
                 //采购管理员和单位分管负责人显示本单位的预算单
                 Page<Budget> budgetList = budgetRepository.findByOrg(pageable,operator.getOrg());
                 return RespBean.success("加载经费单成功",budgetList);
-            }else if(permission == 3){
-                //资产处和财务处显示所有的预算单
-                Page<Budget> budgetList = budgetRepository.findAll(pageable);
+            }else if(permission[0] == 1){
+                //普通用户显示自己的预算单
+                Page<Budget> budgetList = budgetRepository.findByOwner(pageable,operator);
                 return RespBean.success("加载经费单成功",budgetList);
             }
         }

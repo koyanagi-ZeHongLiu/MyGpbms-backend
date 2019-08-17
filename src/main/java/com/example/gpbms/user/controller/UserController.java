@@ -78,9 +78,9 @@ public class UserController {
             //删完中间表后删除单位里的信息
             for (Role role : roles) {
                 if (role.getId().equals("2")) {
-                    org.setPurchaseAdmin(null);
+                    org.setPurchaseAdmin("");
                 } else if (role.getId().equals("3")) {
-                    org.setOrgAdmin(null);
+                    org.setOrgAdmin("");
                 }
             }
             orgRepository.save(org);

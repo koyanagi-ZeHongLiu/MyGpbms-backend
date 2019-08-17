@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Data
 @Entity
@@ -32,4 +34,7 @@ public class BudgetAuditLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User auditor;
+
+    @Column(name = "create_time")
+    private Timestamp createTime;
 }
