@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BudgetRepository extends JpaRepository<Budget,String> {
     Page<Budget> findByOrg(Pageable pageable, Org org);
     Page<Budget> findByOwner(Pageable pageable, User owner);
+    Budget findByBudgetCode(String code);
 }
