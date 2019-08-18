@@ -6,6 +6,7 @@ import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.OrgRepository;
 import com.example.gpbms.user.repository.RoleRepository;
 import com.example.gpbms.user.repository.UserRepository;
+import com.example.gpbms.user.request.GetOperatorReq;
 import com.example.gpbms.util.PageUtils;
 import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class UserController {
         //若有管理员将管理员姓名加入对应的单位，如果该单位已存在管理员，先移除
         for (Role role : roles) {
             if (role.getId().equals("2")) {
-                if (org.getPurchaseAdmin() != null) {
+                if (org.getPurchaseAdmin() != null && !org.getPurchaseAdmin().isEmpty()) {
                     User oldPurchaseAdmin = userRepository.findByRealName(org.getPurchaseAdmin()).get();
                     List<Role> PurchaseAdminRoles = oldPurchaseAdmin.getRoles();
                     PurchaseAdminRoles.remove(roleRepository.findById("2").get());
@@ -106,7 +107,7 @@ public class UserController {
                 }
                 org.setPurchaseAdmin(user.getRealName());
             } else if (role.getId().equals("3")) {
-                if (org.getOrgAdmin() != null) {
+                if (org.getOrgAdmin() != null && !org.getOrgAdmin().isEmpty()) {
                     User oldOrgAdmin = userRepository.findByRealName(org.getOrgAdmin()).get();
                     List<Role> OrgAdminRoles = oldOrgAdmin.getRoles();
                     OrgAdminRoles.remove(roleRepository.findById("3").get());
@@ -143,10 +144,31 @@ public class UserController {
 
     @PostMapping(value = "getUserByUsername")
     public RespBean getUserByUsername(@RequestBody User user) {
-        //msg显不显示前端可控
         User resUser = userRepository.findByUsername(user.getUsername()).get();
-        System.out.println(resUser.toString());
         return RespBean.success("加载用户信息成功", resUser);
+    }
+
+    @PostMapping(value = "getOperator")
+    public RespBean getOperator(@RequestBody GetOperatorReq operatorReq) {
+        User operator = userRepository.findByUsername(operatorReq.getOperator().getUsername()).get();
+        operatorReq.setOperator(operator);
+        int[] permission = {0,0,0,0}; //标记当前用户权限
+        if(!operator.getRoles().isEmpty()){
+            List<Role> roles = operator.getRoles();
+            for(Role role : roles){
+                if(role.getId().equals("2")){
+                    permission[0] = 1; //1代表采购管理员权限
+                }else if(role.getId().equals("3")){
+                    permission[1] = 2;
+                }else if(role.getId().equals("4")){
+                    permission[2] = 3;
+                }else if(role.getId().equals("5")){
+                    permission[3] = 4;
+                }
+            }
+        }
+        operatorReq.setPermission(permission);
+        return RespBean.success("加载用户信息成功", operatorReq);
     }
 
     @PostMapping(value = "getUser")
