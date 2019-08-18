@@ -8,5 +8,6 @@ import lombok.Data;
 @Data
 public class AuditBudgetReq {
     private BudgetAuditLog budgetAuditLog;
+    private Budget budget;
     private User operator;
 }

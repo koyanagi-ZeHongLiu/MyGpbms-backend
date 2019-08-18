@@ -76,8 +76,19 @@ public class BudgetController {
     @Transactional
     @PostMapping(value = "editBudget")
     public RespBean editBudget(@RequestBody Budget budget){
+        if(budget.getBudgetAuditStatus() == null || budget.getBudgetAuditStatus().getId() == 0){
+            budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(0).get());
+        }else{
+            budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(1).get());
+        }
+        //通过前端传过来的owner.realName设置owner
         budget.setOwner(userRepository.findByRealName(budget.getOwner().getRealName()).orElse(null));
-        budget.setFund(fundRepository.findByFundName(budget.getFund().getFundName()).orElse(null));
+        //通过前端传过来的fund.id设置fund,无经费的话默认设置为0，经费单0标记为无经费
+        if(budget.getFund().getId().isEmpty() || budget.getFund().getId() == null){
+            budget.setFund(fundRepository.findById("0").orElse(null));
+        }else {
+            budget.setFund(fundRepository.findById(budget.getFund().getId()).orElse(null));
+        }
         if(!budget.getBudgetItems().isEmpty() && budget.getBudgetItems() != null){
             //先删掉原来的item，再重新添加
             Budget oldBudget = budgetRepository.findById(budget.getId()).orElse(null);

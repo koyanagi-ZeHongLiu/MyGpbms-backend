@@ -42,9 +42,9 @@ public class BudgetAuditLogController {
     public RespBean approveBudget(@RequestBody AuditBudgetReq auditBudgetReq){
         //审核通过
         auditBudgetReq.getBudgetAuditLog().setAuditor(auditBudgetReq.getOperator());
-        //通过预算单编号找到预算单
-        Budget budget = budgetRepository.findByBudgetCode(auditBudgetReq.getBudgetAuditLog().getBudget().getBudgetCode());
+        Budget budget = auditBudgetReq.getBudget();
         budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(budget.getBudgetAuditStatus().getId()+1).orElse(null));
+        budgetRepository.save(budget);
         auditBudgetReq.getBudgetAuditLog().setBudget(budget);
 
         if(!budget.getBudgetAuditLogs().isEmpty() && budget.getBudgetAuditLogs() != null) {
@@ -59,12 +59,13 @@ public class BudgetAuditLogController {
     @PostMapping(value = "rejectBudget")
     public RespBean rejectBudget(@RequestBody AuditBudgetReq auditBudgetReq){
         //驳回
-        Budget budget = budgetRepository.findByBudgetCode(auditBudgetReq.getBudgetAuditLog().getBudget().getBudgetCode());
+        Budget budget = auditBudgetReq.getBudget();
         if(budget.getBudgetAuditStatus().getId() == 0){
             return RespBean.failure("驳回失败");
         }
         auditBudgetReq.getBudgetAuditLog().setAuditor(auditBudgetReq.getOperator());
         budget.setBudgetAuditStatus(budgetAuditStatusRepository.findById(budget.getBudgetAuditStatus().getId()-1).orElse(null));
+        budgetRepository.save(budget);
         auditBudgetReq.getBudgetAuditLog().setBudget(budget);
 
         if(!budget.getBudgetAuditLogs().isEmpty() && budget.getBudgetAuditLogs() != null) {
