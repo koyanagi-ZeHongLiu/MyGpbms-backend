@@ -23,7 +23,7 @@ public class PurchaseItems {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Purchaes purchaes;
+    private Purchase purchase;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private PurchaseCatalogItem purchaseCatalogItem;

@@ -28,7 +28,7 @@ public class PurchaseAuditLog {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Purchaes purchaes;
+    private Purchase purchase;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private User auditor;

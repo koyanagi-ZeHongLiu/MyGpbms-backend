@@ -30,7 +30,7 @@ public class PurchaseRecordSelfOrganized {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Purchaes purchaes;
+    private Purchase purchase;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Provider provider;      //成交商

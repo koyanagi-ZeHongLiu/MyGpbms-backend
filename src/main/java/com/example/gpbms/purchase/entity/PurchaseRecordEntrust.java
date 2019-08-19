@@ -30,7 +30,7 @@ public class PurchaseRecordEntrust {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Purchaes purchaes;
+    private Purchase purchase;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Provider provider;      //委托代理机构

@@ -16,7 +16,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class Purchaes {
+public class Purchase {
     @Id
     @Column(length = 32)
     @GeneratedValue(generator = "custom-uuid4")

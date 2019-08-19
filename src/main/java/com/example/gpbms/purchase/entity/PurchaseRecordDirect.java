@@ -30,7 +30,7 @@ public class PurchaseRecordDirect {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Purchaes purchaes;
+    private Purchase purchase;
 
     @Column(name = "trading_money")
     private Double tradingMoney;    //成交金额
