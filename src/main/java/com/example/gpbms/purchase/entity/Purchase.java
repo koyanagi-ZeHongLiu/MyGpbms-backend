@@ -6,10 +6,12 @@ import com.example.gpbms.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -73,5 +75,16 @@ public class Purchase {
 
     @Column(name = "description")
     private String description;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private PurchaseAuditStatus purchaseAuditStatus;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "purchase")
+    private List<PurchaseItems> purchaseItems;
+
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "purchase")
+    private  List<PurchaseAuditLog> purchaseAuditLogs;
 
 }
