@@ -91,9 +91,8 @@ public class BudgetController {
         }
         if(!budget.getBudgetItems().isEmpty() && budget.getBudgetItems() != null){
             //先删掉原来的item，再重新添加
-            Budget oldBudget = budgetRepository.findById(budget.getId()).orElse(null);
-            if(!oldBudget.getBudgetItems().isEmpty()){
-                for(BudgetItems item : oldBudget.getBudgetItems()){
+            if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty()){
+                for(BudgetItems item : budgetItemsRepository.findByBudgetId(budget.getId())){
                     budgetItemsRepository.delete(item);
                 }
             }
