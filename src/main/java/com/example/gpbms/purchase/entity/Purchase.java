@@ -58,8 +58,8 @@ public class Purchase {
     @Column(name = "contract_form")
     private String contractForm;  //合同形式
 
-    @Column(name = "k_value")
-    private String kValue;        //K值下调
+    @Column(name = "kvalue_down")
+    private String kvalueDown;        //K值下调
 
     @Column(name = "payment_cycle")
     private String paymentCycle;  //付款周期
