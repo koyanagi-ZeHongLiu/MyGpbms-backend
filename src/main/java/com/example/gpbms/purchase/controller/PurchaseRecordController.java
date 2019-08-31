@@ -1,18 +1,17 @@
 package com.example.gpbms.purchase.controller;
 
 import com.example.gpbms.provider.repository.ProviderRepository;
-import com.example.gpbms.purchase.entity.PurchaseRecordDirect;
-import com.example.gpbms.purchase.entity.PurchaseRecordEntrust;
-import com.example.gpbms.purchase.entity.PurchaseRecordSelfOrganized;
-import com.example.gpbms.purchase.repository.PurchaseRecordDirectRepository;
-import com.example.gpbms.purchase.repository.PurchaseRecordEntrustRepository;
-import com.example.gpbms.purchase.repository.PurchaseRecordSelfOrganizedRepository;
-import com.example.gpbms.purchase.repository.PurchaseRepository;
+import com.example.gpbms.purchase.entity.*;
+import com.example.gpbms.purchase.repository.*;
 import com.example.gpbms.purchase.request.DirectRecordReq;
 import com.example.gpbms.purchase.request.EntrustRecordReq;
+import com.example.gpbms.purchase.request.GetPurchasesReq;
 import com.example.gpbms.purchase.request.SelfOrganizedRecordReq;
 import com.example.gpbms.util.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +27,9 @@ public class PurchaseRecordController {
 
     @Autowired
     private ProviderRepository providerRepository;
+
+    @Autowired
+    private PurchaseAuditStatusRepository purchaseAuditStatusRepository;
 
     @Autowired
     private PurchaseRecordDirectRepository purchaseRecordDirectRepository;
@@ -66,5 +68,14 @@ public class PurchaseRecordController {
                 .setPurchase(entrustRecordReq.getPurchase())
                 .setProvider(providerRepository.findByProviderName(purchaseRecordEntrust.getProvider().getProviderName()).orElse(null));
         return RespBean.success("提交备案成功", purchaseRecordEntrustRepository.save(purchaseRecordEntrust));
+    }
+
+    @Transactional
+    @PostMapping(value = "getRecords")
+    public RespBean getDirects(@RequestBody GetPurchasesReq purchasesReq){
+        Pageable pageable = PageRequest.of(purchasesReq.getPageUtils().getCurrentPage(), purchasesReq.getPageUtils().getPageSize());
+        PurchaseAuditStatus status = purchaseAuditStatusRepository.findById(4).get();
+        Page<Purchase> purchaseList = purchaseRepository.findByPurchaseTypeAndPurchaseAuditStatus(pageable, purchasesReq.getPurchaseType(), status);
+        return RespBean.success("加载采购单成功", purchaseList);
     }
 }

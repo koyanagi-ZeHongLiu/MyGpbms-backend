@@ -9,5 +9,6 @@ import lombok.Data;
 public class GetPurchasesReq {
     private Purchase purchase;
     private User user;
+    private String purchaseType;
     private PageUtils pageUtils;
 }
