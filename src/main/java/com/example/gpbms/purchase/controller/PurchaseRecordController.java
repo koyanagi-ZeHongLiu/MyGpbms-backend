@@ -44,8 +44,11 @@ public class PurchaseRecordController {
     @PostMapping(value = "saveDirect")
     public RespBean saveDirect(@RequestBody DirectRecordReq directRecordReq){
         PurchaseRecordDirect purchaseRecordDirect = directRecordReq.getPurchaseRecordDirect();
+        Purchase purchase = directRecordReq.getPurchase();
+        purchase.setPurchaseAuditStatus(purchaseAuditStatusRepository.findById(purchase.getPurchaseAuditStatus().getId()+1).orElse(null));
+        purchaseRepository.save(purchase);
         purchaseRecordDirect
-                .setPurchase(directRecordReq.getPurchase())
+                .setPurchase(purchase)
                 .setProvider(providerRepository.findByProviderName(purchaseRecordDirect.getProvider().getProviderName()).orElse(null));
         return RespBean.success("提交备案成功", purchaseRecordDirectRepository.save(purchaseRecordDirect));
     }
@@ -54,8 +57,11 @@ public class PurchaseRecordController {
     @PostMapping(value = "saveSelfOrganized")
     public RespBean saveSelfOrganized(@RequestBody SelfOrganizedRecordReq selfOrganizedRecordReq){
         PurchaseRecordSelfOrganized purchaseRecordSelfOrganized = selfOrganizedRecordReq.getPurchaseRecordSelfOrganized();
+        Purchase purchase = selfOrganizedRecordReq.getPurchase();
+        purchase.setPurchaseAuditStatus(purchaseAuditStatusRepository.findById(purchase.getPurchaseAuditStatus().getId()+1).orElse(null));
+        purchaseRepository.save(purchase);
         purchaseRecordSelfOrganized
-                .setPurchase(selfOrganizedRecordReq.getPurchase())
+                .setPurchase(purchase)
                 .setProvider(providerRepository.findByProviderName(purchaseRecordSelfOrganized.getProvider().getProviderName()).orElse(null));
         return RespBean.success("提交备案成功", purchaseRecordSelfOrganizedRepository.save(purchaseRecordSelfOrganized));
     }
@@ -64,8 +70,11 @@ public class PurchaseRecordController {
     @PostMapping(value = "saveEntrust")
     public RespBean saveEntrust(@RequestBody EntrustRecordReq entrustRecordReq){
         PurchaseRecordEntrust purchaseRecordEntrust = entrustRecordReq.getPurchaseRecordEntrust();
+        Purchase purchase = entrustRecordReq.getPurchase();
+        purchase.setPurchaseAuditStatus(purchaseAuditStatusRepository.findById(purchase.getPurchaseAuditStatus().getId()+1).orElse(null));
+        purchaseRepository.save(purchase);
         purchaseRecordEntrust
-                .setPurchase(entrustRecordReq.getPurchase())
+                .setPurchase(purchase)
                 .setProvider(providerRepository.findByProviderName(purchaseRecordEntrust.getProvider().getProviderName()).orElse(null));
         return RespBean.success("提交备案成功", purchaseRecordEntrustRepository.save(purchaseRecordEntrust));
     }
