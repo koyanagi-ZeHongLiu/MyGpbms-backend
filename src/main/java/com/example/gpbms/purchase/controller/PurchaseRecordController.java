@@ -79,12 +79,26 @@ public class PurchaseRecordController {
         return RespBean.success("提交备案成功", purchaseRecordEntrustRepository.save(purchaseRecordEntrust));
     }
 
-    @Transactional
     @PostMapping(value = "getRecords")
     public RespBean getDirects(@RequestBody GetPurchasesReq purchasesReq){
         Pageable pageable = PageRequest.of(purchasesReq.getPageUtils().getCurrentPage(), purchasesReq.getPageUtils().getPageSize());
         PurchaseAuditStatus status = purchaseAuditStatusRepository.findById(4).get();
         Page<Purchase> purchaseList = purchaseRepository.findByPurchaseTypeAndPurchaseAuditStatus(pageable, purchasesReq.getPurchaseType(), status);
         return RespBean.success("加载采购单成功", purchaseList);
+    }
+
+    @PostMapping(value = "getRecordDirect")
+    public RespBean getRecordDirect(@RequestBody Purchase purchase){
+        return RespBean.success("加载采购单成功", purchaseRecordDirectRepository.findByPurchaseId(purchase.getId()));
+    }
+
+    @PostMapping(value = "getRecordEntrust")
+    public RespBean getRecordEntrust(@RequestBody Purchase purchase){
+        return RespBean.success("加载采购单成功", purchaseRecordEntrustRepository.findByPurchaseId(purchase.getId()));
+    }
+
+    @PostMapping(value = "getRecordSelf")
+    public RespBean getRecordSelf(@RequestBody Purchase purchase){
+        return RespBean.success("加载采购单成功", purchaseRecordSelfOrganizedRepository.findByPurchaseId(purchase.getId()));
     }
 }

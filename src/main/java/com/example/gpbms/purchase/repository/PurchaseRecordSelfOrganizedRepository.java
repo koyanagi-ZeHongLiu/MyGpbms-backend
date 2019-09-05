@@ -4,4 +4,5 @@ import com.example.gpbms.purchase.entity.PurchaseRecordSelfOrganized;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PurchaseRecordSelfOrganizedRepository extends JpaRepository<PurchaseRecordSelfOrganized, String> {
+    PurchaseRecordSelfOrganized findByPurchaseId(String id);
 }
