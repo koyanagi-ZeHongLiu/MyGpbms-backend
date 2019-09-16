@@ -43,6 +43,9 @@ public class PurchaseController {
     @Autowired
     private PurchaseAuditStatusRepository purchaseAuditStatusRepository;
 
+    @Autowired
+    private PurchaseCatalogItemRepository purchaseCatalogItemRepository;
+
     @Transactional
     @PostMapping(value = "savePurchase")
     public RespBean savePurchase(@RequestBody Purchase purchase){
@@ -57,10 +60,23 @@ public class PurchaseController {
         }else{
             purchase.setBudget(budgetRepository.findById(purchase.getBudget().getId()).orElse(null));
         }
-        if(!purchase.getPurchaseItems().isEmpty()){
+        if(!purchase.getPurchaseItems().isEmpty() && purchase.getPurchaseItems() != null){
+            //先删掉原来的item，再重新添加
+            if(!purchaseItemsRepository.findByPurchaseId(purchase.getId()).isEmpty()){
+                for(PurchaseItems item : purchaseItemsRepository.findByPurchaseId(purchase.getId())){
+                    purchaseItemsRepository.delete(item);
+                }
+            }
             for(PurchaseItems item : purchase.getPurchaseItems()){
                 item.setPurchase(purchase);
+                item.setPurchaseCatalogItem(purchaseCatalogItemRepository.findById(item.getLabel()).orElse(null));
                 purchaseItemsRepository.save(item);
+            }
+        } else {
+            if(!purchaseItemsRepository.findByPurchaseId(purchase.getId()).isEmpty()){
+                for(PurchaseItems item : purchaseItemsRepository.findByPurchaseId(purchase.getId())){
+                    purchaseItemsRepository.delete(item);
+                }
             }
         }
         return RespBean.success("保存采购单成功", purchaseRepository.save(purchase));
