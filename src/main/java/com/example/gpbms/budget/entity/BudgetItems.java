@@ -24,7 +24,7 @@ public class BudgetItems {
     private String id;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Budget budget;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,4 +39,6 @@ public class BudgetItems {
     @Column(name = "item_unit")
     private String itemUnit;       //计量单位
 
+    @Column(name = "label")
+    private String label;
 }

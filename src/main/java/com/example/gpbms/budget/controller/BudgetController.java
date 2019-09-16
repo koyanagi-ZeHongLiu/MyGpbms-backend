@@ -5,6 +5,7 @@ import com.example.gpbms.budget.entity.BudgetAuditLog;
 import com.example.gpbms.budget.entity.BudgetItems;
 import com.example.gpbms.budget.repository.*;
 import com.example.gpbms.budget.request.GetBudgetsReq;
+import com.example.gpbms.purchase.repository.PurchaseCatalogItemRepository;
 import com.example.gpbms.user.entity.Role;
 import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.UserRepository;
@@ -44,6 +45,9 @@ public class BudgetController {
     @Autowired
     private BudgetAuditStatusRepository budgetAuditStatusRepository;
 
+    @Autowired
+    private PurchaseCatalogItemRepository purchaseCatalogItemRepository;
+
     @Transactional
     @PostMapping(value = "saveBudget")
     public RespBean saveBudget(@RequestBody Budget budget){
@@ -64,10 +68,23 @@ public class BudgetController {
             budget.setFund(fundRepository.findById(budget.getFund().getId()).orElse(null));
         }
         //将前端传过来的List<BudgetItems>按个存入BudgetItems表
-        if(!budget.getBudgetItems().isEmpty()){
+        if(!budget.getBudgetItems().isEmpty() && budget.getBudgetItems() != null){
+            //先删掉原来的item，再重新添加
+            if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty()){
+                for(BudgetItems item : budgetItemsRepository.findByBudgetId(budget.getId())){
+                    budgetItemsRepository.delete(item);
+                }
+            }
             for(BudgetItems item : budget.getBudgetItems()){
                 item.setBudget(budget);
+                item.setPurchaseCatalogItem(purchaseCatalogItemRepository.findById(item.getLabel()).orElse(null));
                 budgetItemsRepository.save(item);
+            }
+        } else {
+            if(!budgetItemsRepository.findByBudgetId(budget.getId()).isEmpty()){
+                for(BudgetItems item : budgetItemsRepository.findByBudgetId(budget.getId())){
+                    budgetItemsRepository.delete(item);
+                }
             }
         }
         return RespBean.success("保存预算单成功", budgetRepository.save(budget));
@@ -98,6 +115,7 @@ public class BudgetController {
             }
             for(BudgetItems item : budget.getBudgetItems()){
                 item.setBudget(budget);
+                item.setPurchaseCatalogItem(purchaseCatalogItemRepository.findById(item.getLabel()).orElse(null));
                 budgetItemsRepository.save(item);
             }
         }
