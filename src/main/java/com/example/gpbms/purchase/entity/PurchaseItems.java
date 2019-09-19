@@ -22,7 +22,7 @@ public class PurchaseItems {
     private String id;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Purchase purchase;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,4 +39,7 @@ public class PurchaseItems {
 
     @Column(name = "is_import")
     private Integer isImport;      //是否进口，0代表进口，1代表不是进口
+
+    @Column(name = "label")
+    private String label;
 }
