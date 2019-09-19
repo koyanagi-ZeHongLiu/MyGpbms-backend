@@ -35,6 +35,17 @@ public class PurchaseAuditLogController {
         //审核通过
         auditPurchaseReq.getPurchaseAuditLog().setAuditor(auditPurchaseReq.getOperator());
         Purchase purchase = auditPurchaseReq.getPurchase();
+        String msg = auditPurchaseReq.getPurchaseAuditLog().getAuditInfo();
+        StringBuilder sb = new StringBuilder(msg);
+        if(purchase.getPurchaseAuditStatus().getId() == 1) {
+            sb.insert(0,"采购管理员审核通过。审核意见：");
+        } else if (purchase.getPurchaseAuditStatus().getId() == 2) {
+            sb.insert(0,"单位负责人审核通过。审核意见：");
+        } else if (purchase.getPurchaseAuditStatus().getId() == 3) {
+            sb.insert(0,"资产处审核通过。审核意见：");
+        }
+        msg = sb.toString();
+        auditPurchaseReq.getPurchaseAuditLog().setAuditInfo(msg);
         purchase.setPurchaseAuditStatus(purchaseAuditStatusRepository.findById(purchase.getPurchaseAuditStatus().getId()+1).orElse(null));
         purchaseRepository.save(purchase);
         auditPurchaseReq.getPurchaseAuditLog().setPurchase(purchase);
@@ -55,6 +66,17 @@ public class PurchaseAuditLogController {
         if(purchase.getPurchaseAuditStatus().getId() == 0){
             return RespBean.failure("驳回失败");
         }
+        String msg = auditPurchaseReq.getPurchaseAuditLog().getAuditInfo();
+        StringBuilder sb = new StringBuilder(msg);
+        if(purchase.getPurchaseAuditStatus().getId() == 1) {
+            sb.insert(0,"采购管理员驳回。驳回意见：");
+        } else if (purchase.getPurchaseAuditStatus().getId() == 2) {
+            sb.insert(0,"单位负责人驳回。驳回意见：");
+        } else if (purchase.getPurchaseAuditStatus().getId() == 3) {
+            sb.insert(0,"资产处驳回。驳回意见：");
+        }
+        msg = sb.toString();
+        auditPurchaseReq.getPurchaseAuditLog().setAuditInfo(msg);
         auditPurchaseReq.getPurchaseAuditLog().setAuditor(auditPurchaseReq.getOperator());
         purchase.setPurchaseAuditStatus(purchaseAuditStatusRepository.findById(purchase.getPurchaseAuditStatus().getId()-1).orElse(null));
         purchaseRepository.save(purchase);
