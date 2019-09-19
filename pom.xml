@@ -81,6 +81,13 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!--Jxls是一个小型Java库，可以轻松生成Excel报告。Jxls在Excel模板中使用特殊标记来定义输出格式和数据布局。-->
+        <dependency>
+            <groupId>net.sf.jxls</groupId>
+            <artifactId>jxls-core</artifactId>
+            <version>1.0.6</version>
+        </dependency>
     </dependencies>
 
     <build>
