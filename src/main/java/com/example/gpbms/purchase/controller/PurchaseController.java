@@ -9,7 +9,9 @@ import com.example.gpbms.purchase.request.GetPurchasesReq;
 import com.example.gpbms.user.entity.Role;
 import com.example.gpbms.user.entity.User;
 import com.example.gpbms.user.repository.UserRepository;
+import com.example.gpbms.util.ExcelUtil;
 import com.example.gpbms.util.RespBean;
+import jodd.util.StringPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,8 +21,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api")
@@ -175,5 +186,92 @@ public class PurchaseController {
             }
         }
         return RespBean.failure("当前用户没有权限查看");
+    }
+
+    @PostMapping(value = "exportPurchase")
+    public void exportPurchase(@RequestBody Purchase purchase1, HttpServletResponse response) throws Exception {
+        Purchase purchase = purchaseRepository.findById(purchase1.getId()).orElseThrow(RuntimeException::new);
+        InputStream in = null;
+        if(purchase.getProjectType()!=null) {
+            if(purchase.getProjectType().equals("工程项目")) {
+                in = this.getClass().getResourceAsStream("/template/福建师范大学工程项目申购表.xlsx");
+            }else {
+                in = this.getClass().getResourceAsStream("/template/福建师范大学货物和服务申购表.xls");
+            }
+        }else {
+            in = this.getClass().getResourceAsStream("/template/福建师范大学货物和服务申购表.xls");
+        }
+
+        response.setCharacterEncoding(StringPool.UTF_8);
+        response.setHeader("content-disposition", "attachment; filename=" + URLEncoder.encode("文件名", "UTF-8"));
+        response.setContentType("application/vnd.ms-excel");
+
+        ServletOutputStream os = response.getOutputStream();
+
+        Map<String, Object> beanMaps = new HashMap<>();
+        beanMaps.put("purchase", purchase);
+
+        List<PurchaseAuditLog> logs = purchaseAuditLogRepository.findByPurchaseId(purchase.getId());
+
+        for (PurchaseAuditLog purchaseLog : logs) {
+            String message = purchaseLog.getAuditInfo();
+            if (message.contains("采购管理员审核通过")) {
+                beanMaps.put("r1", message.substring(message.indexOf("审核意见：")));
+                beanMaps.put("r1Name",purchaseLog.getAuditor().getRealName());
+                beanMaps.put("r1Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+            }
+            if (message.contains("单位负责人审核通过")) {
+                beanMaps.put("r2", message.substring(message.indexOf("审核意见：")));
+                beanMaps.put("r2Name",purchaseLog.getAuditor().getRealName());
+                beanMaps.put("r2Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+            }
+            if (message.contains("资产处审核通过")) {
+                beanMaps.put("r5", message.substring(message.indexOf("审核意见：")));
+                beanMaps.put("r5Name",purchaseLog.getAuditor().getRealName());
+                beanMaps.put("r5Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+            }
+        }
+        ExcelUtil.innerExport(in, os, beanMaps);
+    }
+
+    @PostMapping(value = "exportPurchaseRecord")
+    public void exportPurchaseRecord(@RequestBody Purchase purchase2, HttpServletResponse response) throws IOException, ParseException {
+        Purchase purchase = purchaseRepository.findById(purchase2.getId()).orElseThrow(RuntimeException::new);
+
+        InputStream in = null;
+        String purchaseType = purchase.getPurchaseType();//获取采购类型
+        if (purchaseType != null) {
+            if (purchaseType.equals("直接购买")) {
+                in = this.getClass().getResourceAsStream("/template/直接购买备案表 .xls");
+            } else if (purchaseType.equals("自行组织采购")) {
+                in = this.getClass().getResourceAsStream("/template/自行组织采购备案表.xls");
+            }else if (purchaseType.equals("网上超市采购")) {
+                in = this.getClass().getResourceAsStream("/template/委托招标采购备案表-货物与服务项目.xls");
+            }else if (purchaseType.equals("委托招标")) {
+                if(purchase.getProjectType()!=null) {
+                    if (purchase.getProjectType().equals("工程项目")) {
+                        in = this.getClass().getResourceAsStream("/template/委托招标采购备案表-工程项目.xls");
+                    }else {
+                        in = this.getClass().getResourceAsStream("/template/委托招标采购备案表-货物与服务项目.xls");
+                    }
+                }else {
+                    in = this.getClass().getResourceAsStream("/template/委托招标采购备案表-货物与服务项目.xls");
+                }
+            }
+        } else {
+            //TODO 抛出异常，正常情况下采购类型不应为空.
+            in = this.getClass().getResourceAsStream("/template/直接购买备案表 .xls");
+        }
+
+        response.setCharacterEncoding(StringPool.UTF_8);
+        response.setHeader("content-disposition", "attachment; filename=" + URLEncoder.encode("文件名", "UTF-8"));
+        response.setContentType("application/vnd.ms-excel");
+
+        ServletOutputStream os = response.getOutputStream();
+
+        HashMap<String, Object> beanMaps = new HashMap<>();
+        beanMaps.put("purchase", purchase);
+
+        ExcelUtil.innerExport(in,os,beanMaps);
     }
 }
