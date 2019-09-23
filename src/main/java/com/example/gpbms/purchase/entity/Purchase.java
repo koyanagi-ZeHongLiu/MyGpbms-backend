@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Data
@@ -68,7 +69,7 @@ public class Purchase {
     private String bidderQuality; //投标人资质
 
     @Column(name = "else_need")
-    private String elseNeed;      //其他要求
+        private String elseNeed;      //其他要求
 
     @Column(name = "purchase_year")
     private String purchaseYear;  //所属年度
@@ -86,5 +87,8 @@ public class Purchase {
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "purchase")
     private  List<PurchaseAuditLog> purchaseAuditLogs;
+
+    @Column(name = "create_time")
+    private Timestamp createTime;
 
 }

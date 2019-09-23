@@ -57,6 +57,15 @@ public class PurchaseController {
     @Autowired
     private PurchaseCatalogItemRepository purchaseCatalogItemRepository;
 
+    @Autowired
+    private PurchaseRecordDirectRepository purchaseRecordDirectRepository;
+
+    @Autowired
+    private PurchaseRecordEntrustRepository purchaseRecordEntrustRepository;
+
+    @Autowired
+    private PurchaseRecordSelfOrganizedRepository purchaseRecordSelfOrganizedRepository;
+
     @Transactional
     @PostMapping(value = "savePurchase")
     public RespBean savePurchase(@RequestBody Purchase purchase){
@@ -209,6 +218,9 @@ public class PurchaseController {
         ServletOutputStream os = response.getOutputStream();
 
         Map<String, Object> beanMaps = new HashMap<>();
+        if(!purchaseItemsRepository.findByPurchaseId(purchase.getId()).isEmpty() && purchaseItemsRepository.findByPurchaseId(purchase.getId()) !=null) {
+            purchase.setPurchaseItems(purchaseItemsRepository.findByPurchaseId(purchase.getId()));
+        }
         beanMaps.put("purchase", purchase);
 
         List<PurchaseAuditLog> logs = purchaseAuditLogRepository.findByPurchaseId(purchase.getId());
@@ -218,17 +230,17 @@ public class PurchaseController {
             if (message.contains("采购管理员审核通过")) {
                 beanMaps.put("r1", message.substring(message.indexOf("审核意见：")));
                 beanMaps.put("r1Name",purchaseLog.getAuditor().getRealName());
-                beanMaps.put("r1Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+                beanMaps.put("r1Time",purchaseLog.getCreateTime());
             }
             if (message.contains("单位负责人审核通过")) {
                 beanMaps.put("r2", message.substring(message.indexOf("审核意见：")));
                 beanMaps.put("r2Name",purchaseLog.getAuditor().getRealName());
-                beanMaps.put("r2Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+                beanMaps.put("r2Time",purchaseLog.getCreateTime());
             }
             if (message.contains("资产处审核通过")) {
                 beanMaps.put("r5", message.substring(message.indexOf("审核意见：")));
                 beanMaps.put("r5Name",purchaseLog.getAuditor().getRealName());
-                beanMaps.put("r5Time",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(purchaseLog.getCreateTime()));
+                beanMaps.put("r5Time",purchaseLog.getCreateTime());
             }
         }
         ExcelUtil.innerExport(in, os, beanMaps);
@@ -270,6 +282,13 @@ public class PurchaseController {
         ServletOutputStream os = response.getOutputStream();
 
         HashMap<String, Object> beanMaps = new HashMap<>();
+        if (purchaseType.equals("直接购买")) {
+            beanMaps.put("purchaseRecordDirect", purchaseRecordDirectRepository.findByPurchaseId(purchase.getId()));
+        } else if (purchaseType.equals("自行组织采购")) {
+            beanMaps.put("purchaseRecordSelfOrganized", purchaseRecordSelfOrganizedRepository.findByPurchaseId(purchase.getId()));
+        } else {
+            beanMaps.put("purchaseRecordEntrust", purchaseRecordEntrustRepository.findByPurchaseId(purchase.getId()));
+        }
         beanMaps.put("purchase", purchase);
 
         ExcelUtil.innerExport(in,os,beanMaps);
